@@ -1,21 +1,30 @@
 const path = `https://601803ee971d850017a3f625.mockapi.io/members`;
-document.getElementById("menu").addEventListener("click", (e) => {
-  const selectedName = e.path[0].innerText;
-  main(selectedName);
+
+const menu = document.getElementById("menu");
+const toggle = document.getElementById('menuToggle').children[0];
+
+const image = document.querySelector("#profile-image");
+const bio = document.querySelector("#bio");
+const userName = document.querySelector("#name");
+
+const htmlContainer = document.querySelector("#html-container");
+const cssContainer = document.querySelector("#css-container");
+const jsContainer = document.querySelector("#js-container");
+
+menu.addEventListener("click", (e) => {
+  main(e.path[0].innerText)
 });
+
 async function main(option) {
   const me = await getData(path);
 
-  me.map((key) =>
-    option ? me.map((elem) => (elem.name == option ? elem : false)) : me[0]
-  );
+  let a = me.map(() =>
+    option ? me.find(elem => elem.name == option) : me[0]
+  ).filter(item => typeof item === 'object');
 
-  me.map((key) => {});
-  setInfo(me);
-  setSkills(me);
+  populateFields(a);
+  toggle.checked = false;
 }
-
-main();
 
 async function getData(url) {
   return fetch(url)
@@ -23,53 +32,10 @@ async function getData(url) {
     .then((data) => data);
 }
 
-async function postData(url, data) {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  return response.json();
-}
-
-async function putData(url, data) {
-  console.log(data);
-  const response = await fetch(url, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  return response.json();
-}
-
-async function del(url, data) {
-  const response = await fetch(url, {
-    method: "DELELTE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-  return response.json();
-}
-
-function setInfo(data) {
-  const image = document.querySelector("#profile-image");
-  const bio = document.querySelector("#bio");
-  const name = document.querySelector("#name");
+function populateFields(data) {
   image.src = data[0].mugshot;
   bio.innerText = data[0].other.bio;
-  name.innerText = data[0].name + " " + data[0].surname;
-}
-
-function setSkills(data) {
-  const htmlContainer = document.querySelector("#html-container");
-  const cssContainer = document.querySelector("#css-container");
-  const jsContainer = document.querySelector("#js-container");
+  userName.innerText = data[0].name + " " + data[0].surname;
 
   for (let index = 0; index < data[0].other.skills.html; index++) {
     htmlContainer.children[index].classList.add("accomplished");
@@ -81,3 +47,5 @@ function setSkills(data) {
     jsContainer.children[index].classList.add("accomplished");
   }
 }
+
+main();
